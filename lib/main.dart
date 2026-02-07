@@ -40,6 +40,7 @@ class MyHomePage extends StatelessWidget {
 
   // ฟังก์ชัน _buildInfoRow - สร้าง Widget แสดงข้อมูลแต่ละแถวในส่วนล่าง
   // Widget นี้ถูกสร้างเป็นเมธอดส่วนตัวเพื่อความสะดวกในการนำกลับมาใช้ซ้ำ (Reusability)
+  //ช่วยให้เราไม่ต้องเขียนโค้ดสร้างวงกลมและจัดหน้ากระดาษซ้ำๆ ถึง 4 รอบ (สำหรับ เบอร์, วันเกิด, ที่อยู่, การศึกษา) แค่เรียกใช้ตัวนี้ มันจัดการวาดให้เสร็จเลยครับ
   Widget _buildInfoRow(IconData icon, Color color, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center, // จัดตำแหน่งตามแนวแกน Cross (แนวตั้ง)
@@ -231,7 +232,7 @@ class MyHomePage extends StatelessWidget {
                         "การศึกษา",
                         "วิทยาลัยภาคตะวันออก(อีเทค)",
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 40),
 
                       // ปุ่มไปหน้า 2
                       SizedBox(
@@ -272,26 +273,39 @@ class SecondPage extends StatelessWidget {
 
   // ฟังก์ชัน _buildStatColumn - สร้างคอลัมน์แสดงสถิติ (ตัวเลขและป้ายกำกับ)
   // ใช้สำหรับแสดง "กำลังติดตาม", "ผู้ติดตาม", "ถูกใจเฉลี่ย"
-  Widget _buildStatColumn(String count, String label) {
-    return Column(
+  // แก้ไขฟังก์ชัน _buildStatColumn ให้รับพารามิเตอร์เพิ่มเติม
+
+  //  ช่วยให้เราไม่ต้องเขียนโค้ดซ้ำๆ 3 รอบ (สำหรับ ยอดติดตาม, ผู้ติดตาม, ถูกใจ) แค่เรียกใช้ฟังก์ชันนี้แล้วเปลี่ยนแค่ตัวเลขกับข้อความก็พอครับ
+  Widget _buildStatColumn(String count, String label, {bool showDivider = false}) {
+    return Row(
       children: [
-        // ตัวเลขสถิติ (ใหญ่และหนา)
-        Text(
-          count,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        Column(
+          children: [
+            Text(
+              count,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        // ชื่อสถิติ (เล็กและสีเทา)
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
+        // เพิ่มเส้นขีดกั้นถ้า showDivider เป็น true
+        if (showDivider)
+          Container(
+            height: 40,
+            width: 1,
+            color: Colors.grey[300],
+            margin: const EdgeInsets.symmetric(horizontal: 16),
           ),
-        ),
       ],
     );
   }
@@ -324,20 +338,21 @@ class SecondPage extends StatelessWidget {
               children: [
                 // รูปโปรไฟล์แบบวงกลม
                 const CircleAvatar(
-                  radius: 42, // ขนาดรัศมี 42
+                  radius: 42,
                   backgroundImage: NetworkImage(
                     'https://i.pinimg.com/736x/10/6a/17/106a170e30497a062bedfb9c3e0dca63.jpg',
                   ),
                 ),
                 const SizedBox(width: 16),
                 // สถิติ 3 คอลัมน์
+// ส่วนสถิติ 3 คอลัมน์ (แก้ไขจากเดิม)
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround, // กระจายเท่าๆ กัน
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, // เปลี่ยนเป็น spaceEvenly
                     children: [
-                      _buildStatColumn('108', 'กำลังติดตาม'), // 1. กำลังติดตาม
-                      _buildStatColumn('34.2 K', 'ผู้ติดตาม'), // 2. ผู้ติดตาม
-                      _buildStatColumn('20', 'ถูกใจเฉลี่ยต่อวัน'), // 3. ถูกใจ
+                      _buildStatColumn('108', 'กำลังติดตาม', showDivider: true),
+                      _buildStatColumn('34.2 K', 'ผู้ติดตาม', showDivider: true),
+                      _buildStatColumn('900 k', 'ถูกใจทั้งหมด'),
                     ],
                   ),
                 ),
@@ -347,7 +362,7 @@ class SecondPage extends StatelessWidget {
 
           // ========== ส่วนที่ 2: ชื่อและ Username (รวม Verified Badge) ==========
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0), //ปรับไปขวา
             child: Row(
               children: [
                 const Text(
@@ -379,14 +394,14 @@ class SecondPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.arrow_drop_down, size: 16),
+                const Icon(Icons.arrow_drop_down, size: 16), //คือปรับขนาดไอคอนหลังสุุด
               ],
             ),
           ),
 
           // ========== ส่วนที่ 3: ปุ่มติดตาม (Follow) และ แชร์ (Share) ==========
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(6.0),
             child: Row(
               children: [
                 // ปุ่มติดตาม (สีชมพู)
@@ -396,10 +411,10 @@ class SecondPage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE62860), // สีชมพู TikTok
                       foregroundColor: Colors.white, // สีข้อความ
-                      elevation: 0, // ไม่มีเงา
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 10, // ไม่มีเงา
+                      padding: const EdgeInsets.symmetric(vertical: 10),//ขนาดกรอป
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4), // มุมโค้งเล็กน้อย
+                        borderRadius: BorderRadius.circular(5), // มุมโค้งเล็กน้อย
                       ),
                     ),
                     child: const Text(
@@ -416,7 +431,7 @@ class SecondPage extends StatelessWidget {
                   style: IconButton.styleFrom(
                     side: BorderSide(color: Colors.grey[300]!), // ขอบสีเทา
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(4),//ปรับเยอะจะเป็นวงกลม
                     ),
                   ),
                 ),
